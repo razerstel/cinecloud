@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String          @id @default(cuid())
+  email        String          @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime        @default(now())
+  progress     WatchProgress[]
+  watchlist    WatchlistItem[]
+}
+
+model WatchProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  mediaType   String
+  tmdbId      Int
+  season      Int?
+  episode     Int?
+  positionPct Float    @default(0)
+  durationSec Int?
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mediaType, tmdbId, season, episode])
+  @@index([userId, updatedAt])
+}
+
+model WatchlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  mediaType String
+  tmdbId    Int
+  addedAt   DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mediaType, tmdbId])
+}
