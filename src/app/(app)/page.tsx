@@ -39,8 +39,8 @@ export default async function HomePage() {
     getTvByGenre(18),
   ]);
 
-  const heroPool = trending.results.filter((r) => r.backdrop_path);
-  const hero = heroPool[Math.floor(Math.random() * heroPool.length)] ?? trending.results[0];
+  const hero =
+    trending.results.find((r) => r.backdrop_path) ?? trending.results[0];
 
   return (
     <>
