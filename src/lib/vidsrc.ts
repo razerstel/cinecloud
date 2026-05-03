@@ -1,4 +1,18 @@
-const BASE = process.env.VIDSRC_BASE_URL ?? "https://vidsrc-embed.ru";
+// Espejos de vidsrc en orden de preferencia. Si uno está bloqueado en tu red,
+// el reproductor permite saltar al siguiente sin recargar la página.
+export const VIDSRC_BASES = [
+  "https://vidsrc-embed.ru",
+  "https://vidsrc-embed.su",
+  "https://vidsrcme.ru",
+  "https://vidsrcme.su",
+  "https://vidsrc-me.ru",
+  "https://vidsrc-me.su",
+  "https://vsrc.su",
+] as const;
+
+export type VidsrcBase = (typeof VIDSRC_BASES)[number];
+
+const ENV_BASE = process.env.VIDSRC_BASE_URL;
 
 export type VidsrcIdKind = "tmdb" | "imdb";
 
@@ -25,8 +39,9 @@ export interface TvEmbedOpts {
 
 export type EmbedOpts = MovieEmbedOpts | TvEmbedOpts;
 
-export function vidsrcEmbedUrl(opts: EmbedOpts): string {
-  const url = new URL(`${BASE}/embed/${opts.type}`);
+export function vidsrcEmbedUrl(opts: EmbedOpts, base?: string): string {
+  const root = base ?? ENV_BASE ?? VIDSRC_BASES[0];
+  const url = new URL(`${root}/embed/${opts.type}`);
   url.searchParams.set(opts.idKind, String(opts.id));
 
   if (opts.type === "tv") {

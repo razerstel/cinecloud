@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { vidsrcEmbedUrl, VIDSRC_BASES } from "@/lib/vidsrc";
 
 export interface PlayerProps {
-  src: string;
   mediaType: "movie" | "tv";
   tmdbId: number;
   season?: number;
@@ -12,9 +12,34 @@ export interface PlayerProps {
 }
 
 const HEARTBEAT_MS = 30_000;
+const STORAGE_KEY = "cinecloud:vidsrc-base";
+
+const isKnownBase = (s: string | null): s is (typeof VIDSRC_BASES)[number] =>
+  s != null && (VIDSRC_BASES as readonly string[]).includes(s);
+
+const readStoredBase = (): string => {
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (isKnownBase(stored)) return stored;
+  } catch {
+    /* ignore */
+  }
+  return VIDSRC_BASES[0];
+};
+
+const subscribeStored = (cb: () => void) => {
+  const handler = (e: StorageEvent) => {
+    if (e.key === STORAGE_KEY) cb();
+  };
+  window.addEventListener("storage", handler);
+  window.addEventListener("cinecloud:vidsrc-base", cb);
+  return () => {
+    window.removeEventListener("storage", handler);
+    window.removeEventListener("cinecloud:vidsrc-base", cb);
+  };
+};
 
 export function Player({
-  src,
   mediaType,
   tmdbId,
   season,
@@ -22,8 +47,52 @@ export function Player({
   durationSec,
 }: PlayerProps) {
   const [marked, setMarked] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const elapsedRef = useRef(0);
   const lastTickRef = useRef<number | null>(null);
+
+  const base = useSyncExternalStore(
+    subscribeStored,
+    readStoredBase,
+    () => VIDSRC_BASES[0]
+  );
+
+  const src = useMemo(() => {
+    if (mediaType === "movie") {
+      return vidsrcEmbedUrl(
+        { type: "movie", idKind: "tmdb", id: tmdbId, autoplay: true },
+        base
+      );
+    }
+    return vidsrcEmbedUrl(
+      {
+        type: "tv",
+        idKind: "tmdb",
+        id: tmdbId,
+        season: season ?? 1,
+        episode: episode ?? 1,
+        autoplay: true,
+        autonext: true,
+      },
+      base
+    );
+  }, [base, mediaType, tmdbId, season, episode]);
+
+  const switchBase = (next: string) => {
+    setReloadKey((k) => k + 1);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, next);
+      window.dispatchEvent(new Event("cinecloud:vidsrc-base"));
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const tryNextMirror = () => {
+    const idx = VIDSRC_BASES.indexOf(base as (typeof VIDSRC_BASES)[number]);
+    const next = VIDSRC_BASES[(idx + 1) % VIDSRC_BASES.length];
+    switchBase(next);
+  };
 
   useEffect(() => {
     let active = !document.hidden;
@@ -49,7 +118,7 @@ export function Player({
       if (elapsed < 5) return;
       const positionPct = durationSec
         ? Math.min(100, (elapsed / durationSec) * 100)
-        : Math.min(99, (elapsed / 6000) * 100); // fallback 100min
+        : Math.min(99, (elapsed / 6000) * 100);
       try {
         await fetch("/api/progress", {
           method: "POST",
@@ -65,7 +134,7 @@ export function Player({
           keepalive: true,
         });
       } catch {
-        /* swallow: heartbeat se reintenta en el próximo tick */
+        /* heartbeat se reintenta en el próximo tick */
       }
     };
 
@@ -100,8 +169,8 @@ export function Player({
   return (
     <div className="space-y-4">
       <div className="relative w-full overflow-hidden rounded-md bg-black shadow-2xl aspect-video">
-        <link rel="preconnect" href="https://vidsrc-embed.ru" />
         <iframe
+          key={`${base}-${reloadKey}`}
           src={src}
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
@@ -119,9 +188,31 @@ export function Player({
         >
           {marked ? "Marcado como visto" : "Marcar como visto"}
         </button>
+        <button
+          type="button"
+          onClick={tryNextMirror}
+          className="rounded-md border border-white/15 px-3 py-1.5 transition hover:border-white/40"
+          title="Si la reproducción no carga, prueba otro espejo"
+        >
+          ↻ Probar otro espejo
+        </button>
+        <label className="flex items-center gap-2 text-xs text-muted">
+          Origen
+          <select
+            value={base}
+            onChange={(e) => switchBase(e.target.value)}
+            className="rounded-md border border-white/15 bg-surface-2 px-2 py-1 text-foreground"
+          >
+            {VIDSRC_BASES.map((b) => (
+              <option key={b} value={b}>
+                {b.replace("https://", "")}
+              </option>
+            ))}
+          </select>
+        </label>
         <span className="text-xs text-muted">
-          El progreso aproximado se guarda automáticamente cada 30 s mientras
-          la pestaña está activa.
+          Si una fuente no carga, salta a otra. La elección se recuerda en este
+          navegador.
         </span>
       </div>
     </div>

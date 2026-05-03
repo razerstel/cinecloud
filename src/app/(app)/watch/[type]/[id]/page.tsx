@@ -7,7 +7,6 @@ import {
   type MediaType,
   tmdbTitle,
 } from "@/lib/tmdb";
-import { vidsrcEmbedUrl } from "@/lib/vidsrc";
 
 export const dynamic = "force-dynamic"; // depende de searchParams (season/episode)
 
@@ -54,24 +53,6 @@ export default async function WatchPage({
   const season = sp.season ? Math.max(1, Number(sp.season)) : undefined;
   const episode = sp.episode ? Math.max(1, Number(sp.episode)) : undefined;
 
-  const src =
-    mediaType === "movie"
-      ? vidsrcEmbedUrl({
-          type: "movie",
-          idKind: "tmdb",
-          id: tmdbId,
-          autoplay: true,
-        })
-      : vidsrcEmbedUrl({
-          type: "tv",
-          idKind: "tmdb",
-          id: tmdbId,
-          season: season ?? 1,
-          episode: episode ?? 1,
-          autoplay: true,
-          autonext: true,
-        });
-
   const title = tmdbTitle(details);
   const durationSec =
     mediaType === "movie" && details.runtime
@@ -100,7 +81,6 @@ export default async function WatchPage({
       </div>
 
       <Player
-        src={src}
         mediaType={mediaType}
         tmdbId={tmdbId}
         season={season}
