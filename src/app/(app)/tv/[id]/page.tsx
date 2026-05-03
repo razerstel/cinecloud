@@ -2,6 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Row } from "@/components/Row";
+import { WatchlistButton } from "@/components/WatchlistButton";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 import {
   getTvDetails,
   getTvRecommendations,
@@ -62,6 +65,18 @@ export default async function TvPage({
       seasonsList.at(-1)?.season_number ?? 1
     )
   );
+  const session = await auth();
+  const inList = session?.user?.id
+    ? !!(await prisma.watchlistItem.findUnique({
+        where: {
+          userId_mediaType_tmdbId: {
+            userId: session.user.id,
+            mediaType: "tv",
+            tmdbId,
+          },
+        },
+      }))
+    : false;
   const season = await getSeason(tmdbId, seasonNumber).catch(() => null);
   const recs = await getTvRecommendations(tmdbId).catch(() => null);
 
@@ -111,6 +126,16 @@ export default async function TvPage({
             {details.overview}
           </p>
         )}
+
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link
+            href={`/watch/tv/${tmdbId}?season=${seasonNumber}&episode=1`}
+            className="rounded-md bg-foreground px-5 py-2 text-sm font-semibold text-background transition hover:bg-foreground/90"
+          >
+            ▶ Reproducir
+          </Link>
+          <WatchlistButton mediaType="tv" tmdbId={tmdbId} initiallyInList={inList} />
+        </div>
 
         {seasonsList.length > 1 && (
           <div className="mt-6 flex flex-wrap gap-2">

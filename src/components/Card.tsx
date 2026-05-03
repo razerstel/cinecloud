@@ -27,7 +27,7 @@ export function Card({
     <Link
       href={href}
       prefetch={false}
-      className="group relative block w-40 shrink-0 overflow-hidden rounded-md transition-transform duration-200 hover:z-10 hover:scale-110 hover:shadow-2xl sm:w-44 md:w-48"
+      className="group relative block overflow-hidden rounded-md transition-transform duration-200 hover:z-10 hover:scale-110 hover:shadow-2xl"
     >
       <div className="relative aspect-[2/3] bg-surface-2">
         {poster ? (

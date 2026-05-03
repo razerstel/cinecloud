@@ -1,5 +1,7 @@
 import { Hero } from "@/components/Hero";
 import { Row } from "@/components/Row";
+import { ContinueWatchingRow } from "@/components/ContinueWatchingRow";
+import { Suspense } from "react";
 import {
   getMoviesByGenre,
   getPopularMovies,
@@ -44,6 +46,9 @@ export default async function HomePage() {
     <>
       {hero && <Hero item={hero} />}
       <div className="mx-auto max-w-screen-2xl">
+        <Suspense>
+          <ContinueWatchingRow />
+        </Suspense>
         <Row title="Tendencias esta semana" items={trending.results} priorityFirst />
         <Row title="Películas populares" items={popularMovies.results} mediaType="movie" />
         <Row title="Mejor valoradas" items={topRatedMovies.results} mediaType="movie" />

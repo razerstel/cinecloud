@@ -2,6 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Row } from "@/components/Row";
+import { WatchlistButton } from "@/components/WatchlistButton";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 import {
   getMovieDetails,
   getMovieRecommendations,
@@ -42,6 +45,18 @@ export default async function MoviePage({
     notFound();
   }
 
+  const session = await auth();
+  const inList = session?.user?.id
+    ? !!(await prisma.watchlistItem.findUnique({
+        where: {
+          userId_mediaType_tmdbId: {
+            userId: session.user.id,
+            mediaType: "movie",
+            tmdbId,
+          },
+        },
+      }))
+    : false;
   const recs = await getMovieRecommendations(tmdbId).catch(() => null);
   const backdrop = tmdbImg(details.backdrop_path, "original");
   const title = tmdbTitle(details);
@@ -95,6 +110,11 @@ export default async function MoviePage({
           >
             ▶ Reproducir
           </Link>
+          <WatchlistButton
+            mediaType="movie"
+            tmdbId={tmdbId}
+            initiallyInList={inList}
+          />
         </div>
 
         {recs?.results?.length ? (

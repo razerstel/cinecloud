@@ -20,12 +20,16 @@ export function Row({
       </h2>
       <div className="row-scroll flex gap-3 overflow-x-auto px-4 pb-2 sm:px-6">
         {items.map((it, i) => (
-          <Card
+          <div
             key={`${mediaType ?? it.media_type ?? "x"}-${it.id}`}
-            item={it}
-            mediaType={mediaType}
-            priority={priorityFirst && i < 4}
-          />
+            className="w-40 shrink-0 sm:w-44 md:w-48"
+          >
+            <Card
+              item={it}
+              mediaType={mediaType}
+              priority={priorityFirst && i < 4}
+            />
+          </div>
         ))}
       </div>
     </section>
