@@ -116,22 +116,28 @@ export default async function WatchPage({
               ← Volver a la ficha
             </Link>
             <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground/70">
-              <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1">
-                Reproduciendo
-              </span>
               {mediaType === "tv" && season && episode ? (
                 <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1">
-                  T{season} · E{episode}
+                  Temporada {season} · Episodio {episode}
                 </span>
-              ) : null}
+              ) : (
+                <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1">
+                  Película
+                </span>
+              )}
             </div>
             <h1 className="mt-3 max-w-5xl text-3xl font-black leading-tight text-foreground sm:text-5xl">
               {title}
             </h1>
             {currentEpisode ? (
-              <p className="mt-3 max-w-3xl text-base leading-relaxed text-foreground/75">
-                {currentEpisode.episode_number}. {currentEpisode.name}
-              </p>
+              <div className="mt-4 max-w-3xl border-l-2 border-white/30 pl-4">
+                <p className="text-xs font-bold uppercase text-foreground/45">
+                  Ahora viendo
+                </p>
+                <p className="mt-1 text-xl font-bold leading-snug text-foreground sm:text-2xl">
+                  {currentEpisode.episode_number}. {currentEpisode.name}
+                </p>
+              </div>
             ) : null}
           </div>
 

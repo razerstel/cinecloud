@@ -55,7 +55,9 @@ export function Player({
   const [marked, setMarked] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [sourceOpen, setSourceOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const sourceRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<HTMLDivElement>(null);
   const elapsedRef = useRef(0);
   const lastTickRef = useRef<number | null>(null);
 
@@ -117,6 +119,17 @@ export function Player({
       document.removeEventListener("keydown", onEsc);
     };
   }, [sourceOpen]);
+
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === playerRef.current);
+    };
+
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+    };
+  }, []);
 
   useEffect(() => {
     let active = !document.hidden;
@@ -190,9 +203,27 @@ export function Player({
     });
   };
 
+  const toggleFullscreen = async () => {
+    const node = playerRef.current;
+    if (!node) return;
+
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await node.requestFullscreen();
+      }
+    } catch {
+      /* El navegador puede bloquear fullscreen si no viene de un gesto válido. */
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black shadow-2xl shadow-black/60 ring-1 ring-white/10">
+      <div
+        ref={playerRef}
+        className="group/player relative aspect-video w-full overflow-hidden rounded-xl bg-black shadow-2xl shadow-black/60 ring-1 ring-white/10 [&:fullscreen]:h-screen [&:fullscreen]:w-screen [&:fullscreen]:rounded-none [&:fullscreen]:ring-0"
+      >
         <iframe
           key={`${base}-${reloadKey}`}
           src={src}
@@ -202,6 +233,22 @@ export function Player({
           loading="eager"
           className="absolute inset-0 h-full w-full border-0"
         />
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          className="absolute right-4 top-4 z-10 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-black/55 px-4 py-2 text-sm font-bold text-white shadow-xl shadow-black/30 backdrop-blur-xl opacity-0 transition hover:border-white/30 hover:bg-black/75 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70 group-hover/player:opacity-100"
+          aria-label={
+            isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"
+          }
+          title={
+            isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"
+          }
+        >
+          <Icon name={isFullscreen ? "minimize" : "maximize"} />
+          <span className="hidden sm:inline">
+            {isFullscreen ? "Salir" : "Expandir"}
+          </span>
+        </button>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -306,7 +353,14 @@ export function Player({
 const hostOf = (url: string) => url.replace(/^https?:\/\//, "");
 
 interface IconProps {
-  name: "check" | "checkFilled" | "refresh" | "globe" | "chevron";
+  name:
+    | "check"
+    | "checkFilled"
+    | "refresh"
+    | "globe"
+    | "chevron"
+    | "maximize"
+    | "minimize";
   className?: string;
 }
 
@@ -359,6 +413,24 @@ function Icon({ name, className = "" }: IconProps) {
       return (
         <svg {...common}>
           <path d="m6 9 6 6 6-6" />
+        </svg>
+      );
+    case "maximize":
+      return (
+        <svg {...common}>
+          <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+          <path d="M16 3h3a2 2 0 0 1 2 2v3" />
+          <path d="M21 16v3a2 2 0 0 1-2 2h-3" />
+          <path d="M8 21H5a2 2 0 0 1-2-2v-3" />
+        </svg>
+      );
+    case "minimize":
+      return (
+        <svg {...common}>
+          <path d="M8 3v3a2 2 0 0 1-2 2H3" />
+          <path d="M16 3v3a2 2 0 0 0 2 2h3" />
+          <path d="M21 16h-3a2 2 0 0 0-2 2v3" />
+          <path d="M3 16h3a2 2 0 0 1 2 2v3" />
         </svg>
       );
   }
