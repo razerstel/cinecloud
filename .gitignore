@@ -51,4 +51,8 @@ prisma/dev.db-journal
 .vscode/
 .idea/
 
+# local agent instructions
+AGENTS.md
+CLAUDE.md
+
 /node_modules/.prisma/client
