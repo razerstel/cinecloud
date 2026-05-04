@@ -90,7 +90,7 @@ export default async function TvPage({
 
   return (
     <article>
-      <div className="relative isolate -mt-14 h-[55svh] min-h-[360px] w-full overflow-hidden">
+      <section className="relative isolate -mt-14 min-h-[calc(100svh-3.5rem)] w-full overflow-hidden">
         {backdrop && (
           <Image
             src={backdrop}
@@ -101,48 +101,71 @@ export default async function TvPage({
             className="-z-10 object-cover"
           />
         )}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/70 to-background/20" />
-      </div>
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/65 to-background/15" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/70 to-transparent" />
 
-      <div className="mx-auto -mt-32 max-w-screen-xl px-4 sm:px-6">
-        <h1 className="text-3xl font-bold sm:text-4xl">{title}</h1>
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-foreground/70">
-          {year && <span>{year}</span>}
-          {details.number_of_seasons ? (
-            <span>
-              {details.number_of_seasons} temporada
-              {details.number_of_seasons === 1 ? "" : "s"}
-            </span>
-          ) : null}
-          {details.vote_average ? (
-            <span>★ {details.vote_average.toFixed(1)}</span>
-          ) : null}
-          {details.genres?.length ? (
-            <span>{details.genres.map((g) => g.name).join(", ")}</span>
-          ) : null}
+        <div className="mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-screen-2xl flex-col justify-end px-4 pb-10 pt-32 sm:px-8 lg:pb-16">
+          <div className="max-w-3xl">
+            <h1 className="text-3xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+              {title}
+            </h1>
+            <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-medium text-foreground/85 sm:text-base">
+              {year && <span>{year}</span>}
+              {details.number_of_seasons ? (
+                <span>
+                  · {details.number_of_seasons} temporada
+                  {details.number_of_seasons === 1 ? "" : "s"}
+                </span>
+              ) : null}
+              {details.vote_average ? (
+                <span>· ★ {details.vote_average.toFixed(1)}</span>
+              ) : null}
+            </div>
+
+            {details.genres?.length ? (
+              <div className="mt-5 flex flex-wrap gap-2">
+                {details.genres.slice(0, 4).map((genre) => (
+                  <span
+                    key={genre.id}
+                    className="rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-sm font-semibold text-foreground/90 backdrop-blur"
+                  >
+                    {genre.name}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+
+            {details.tagline && (
+              <p className="mt-5 text-base italic text-muted">
+                {details.tagline}
+              </p>
+            )}
+            {details.overview && (
+              <p className="mt-4 max-w-3xl text-base leading-relaxed text-foreground/90 sm:text-lg">
+                {details.overview}
+              </p>
+            )}
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href={`/watch/tv/${tmdbId}?season=${seasonNumber}&episode=1`}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-foreground px-7 py-3 text-base font-bold text-background shadow-lg shadow-black/25 transition hover:-translate-y-0.5 hover:bg-foreground/90 hover:shadow-xl hover:shadow-black/35 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80"
+              >
+                ▶ Reproducir
+              </Link>
+              <WatchlistButton
+                mediaType="tv"
+                tmdbId={tmdbId}
+                initiallyInList={inList}
+              />
+            </div>
+          </div>
         </div>
+      </section>
 
-        {details.tagline && (
-          <p className="mt-3 text-sm italic text-muted">{details.tagline}</p>
-        )}
-        {details.overview && (
-          <p className="mt-4 max-w-3xl text-base leading-relaxed text-foreground/90">
-            {details.overview}
-          </p>
-        )}
-
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Link
-            href={`/watch/tv/${tmdbId}?season=${seasonNumber}&episode=1`}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-foreground px-7 py-3 text-base font-bold text-background shadow-lg shadow-black/25 transition hover:-translate-y-0.5 hover:bg-foreground/90 hover:shadow-xl hover:shadow-black/35 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80"
-          >
-            ▶ Reproducir
-          </Link>
-          <WatchlistButton mediaType="tv" tmdbId={tmdbId} initiallyInList={inList} />
-        </div>
-
+      <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6">
         {seasonsList.length > 1 && (
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2">
             {seasonsList.map((s) => (
               <Link
                 key={s.season_number}
