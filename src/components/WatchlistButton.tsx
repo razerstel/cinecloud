@@ -32,7 +32,7 @@ export function WatchlistButton({
       type="button"
       onClick={toggle}
       disabled={pending}
-      className="rounded-md bg-white/15 px-5 py-2 text-sm font-semibold text-foreground backdrop-blur transition hover:bg-white/25 disabled:opacity-60"
+      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/15 px-6 py-3 text-base font-bold text-foreground shadow-lg shadow-black/20 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/25 hover:shadow-xl hover:shadow-black/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70 disabled:translate-y-0 disabled:opacity-60"
     >
       {inList ? "✓ En mi lista" : "+ Mi lista"}
     </button>

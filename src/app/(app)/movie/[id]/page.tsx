@@ -106,7 +106,7 @@ export default async function MoviePage({
             <div className="mt-5 flex flex-wrap gap-3">
               <Link
                 href={`/watch/movie/${tmdbId}`}
-                className="inline-flex items-center gap-2 rounded-md bg-foreground px-6 py-2.5 text-sm font-semibold text-background transition hover:bg-foreground/90"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-foreground px-7 py-3 text-base font-bold text-background shadow-lg shadow-black/25 transition hover:-translate-y-0.5 hover:bg-foreground/90 hover:shadow-xl hover:shadow-black/35 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80"
               >
                 ▶ Reproducir
               </Link>

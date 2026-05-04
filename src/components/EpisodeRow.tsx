@@ -59,10 +59,10 @@ export function EpisodeRow({
               ref={isActive ? activeRef : null}
               href={href}
               prefetch={false}
-              className={`group relative flex w-64 shrink-0 flex-col overflow-hidden rounded-md bg-surface/70 transition ${
+              className={`group relative flex w-72 shrink-0 flex-col overflow-hidden rounded-lg border bg-surface/70 shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70 ${
                 isActive
-                  ? "ring-2 ring-accent shadow-lg shadow-accent/25"
-                  : "hover:bg-surface"
+                  ? "border-accent ring-2 ring-accent shadow-accent/25"
+                  : "border-white/10 hover:border-white/20 hover:bg-surface"
               }`}
               aria-current={isActive ? "true" : undefined}
             >
@@ -85,8 +85,8 @@ export function EpisodeRow({
                 )}
                 {!isActive && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/40 group-hover:opacity-100">
-                    <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-black">
-                      ▶ Reproducir
+                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-base font-bold text-black shadow-lg">
+                      ▶
                     </span>
                   </div>
                 )}
@@ -99,7 +99,7 @@ export function EpisodeRow({
                   {ep.episode_number}. {ep.name}
                 </h3>
                 {ep.overview && (
-                  <p className="mt-1 line-clamp-2 text-xs text-foreground/70">
+                  <p className="mt-1 text-xs leading-relaxed text-foreground/70">
                     {ep.overview}
                   </p>
                 )}
