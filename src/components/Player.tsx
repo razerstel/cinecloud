@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { vidsrcEmbedUrl, VIDSRC_BASES } from "@/lib/vidsrc";
 
 export interface PlayerProps {
@@ -48,6 +54,8 @@ export function Player({
 }: PlayerProps) {
   const [marked, setMarked] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [sourceOpen, setSourceOpen] = useState(false);
+  const sourceRef = useRef<HTMLDivElement>(null);
   const elapsedRef = useRef(0);
   const lastTickRef = useRef<number | null>(null);
 
@@ -93,6 +101,22 @@ export function Player({
     const next = VIDSRC_BASES[(idx + 1) % VIDSRC_BASES.length];
     switchBase(next);
   };
+
+  useEffect(() => {
+    if (!sourceOpen) return;
+    const onClickOutside = (e: MouseEvent) => {
+      if (!sourceRef.current?.contains(e.target as Node)) setSourceOpen(false);
+    };
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSourceOpen(false);
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    document.addEventListener("keydown", onEsc);
+    return () => {
+      document.removeEventListener("mousedown", onClickOutside);
+      document.removeEventListener("keydown", onEsc);
+    };
+  }, [sourceOpen]);
 
   useEffect(() => {
     let active = !document.hidden;
@@ -167,7 +191,7 @@ export function Player({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="relative w-full overflow-hidden rounded-md bg-black shadow-2xl aspect-video">
         <iframe
           key={`${base}-${reloadKey}`}
@@ -179,42 +203,163 @@ export function Player({
           className="absolute inset-0 h-full w-full border-0"
         />
       </div>
-      <div className="flex flex-wrap items-center gap-3 text-sm text-foreground/80">
-        <button
-          type="button"
-          onClick={markWatched}
-          disabled={marked}
-          className="rounded-md border border-white/15 px-3 py-1.5 transition hover:border-white/40 disabled:opacity-60"
-        >
-          {marked ? "Marcado como visto" : "Marcar como visto"}
-        </button>
-        <button
-          type="button"
-          onClick={tryNextMirror}
-          className="rounded-md border border-white/15 px-3 py-1.5 transition hover:border-white/40"
-          title="Si la reproducción no carga, prueba otro espejo"
-        >
-          ↻ Probar otro espejo
-        </button>
-        <label className="flex items-center gap-2 text-xs text-muted">
-          Origen
-          <select
-            value={base}
-            onChange={(e) => switchBase(e.target.value)}
-            className="rounded-md border border-white/15 bg-surface-2 px-2 py-1 text-foreground"
+
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={markWatched}
+            disabled={marked}
+            className={`group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+              marked
+                ? "bg-white/10 text-white/80"
+                : "bg-white text-black hover:bg-zinc-200 active:scale-[0.98]"
+            } disabled:cursor-default`}
           >
-            {VIDSRC_BASES.map((b) => (
-              <option key={b} value={b}>
-                {b.replace("https://", "")}
-              </option>
-            ))}
-          </select>
-        </label>
-        <span className="text-xs text-muted">
-          Si una fuente no carga, salta a otra. La elección se recuerda en este
-          navegador.
-        </span>
+            <Icon name={marked ? "checkFilled" : "check"} />
+            {marked ? "Visto" : "Marcar como visto"}
+          </button>
+
+          <button
+            type="button"
+            onClick={tryNextMirror}
+            className="group inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white/20 active:scale-[0.98]"
+            title="Si la reproducción no carga, prueba otro espejo"
+          >
+            <Icon name="refresh" className="transition group-hover:rotate-180" />
+            Probar siguiente
+          </button>
+        </div>
+
+        <div ref={sourceRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setSourceOpen((v) => !v)}
+            aria-haspopup="listbox"
+            aria-expanded={sourceOpen}
+            className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white/20"
+          >
+            <Icon name="globe" />
+            <span className="text-zinc-300">Fuente</span>
+            <span className="font-semibold">{hostOf(base)}</span>
+            <Icon
+              name="chevron"
+              className={`text-zinc-300 transition ${sourceOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {sourceOpen && (
+            <div
+              role="listbox"
+              className="absolute right-0 top-[calc(100%+8px)] z-30 w-72 overflow-hidden rounded-xl border border-white/10 bg-zinc-900/95 shadow-2xl shadow-black/60 backdrop-blur-xl"
+            >
+              <div className="border-b border-white/5 px-4 py-3">
+                <div className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                  Servidores
+                </div>
+                <p className="mt-1 text-xs leading-relaxed text-zinc-500">
+                  Si la reproducción no carga, prueba otro espejo. La selección
+                  se recuerda en este navegador.
+                </p>
+              </div>
+              <ul className="max-h-72 overflow-y-auto py-1">
+                {VIDSRC_BASES.map((b, i) => {
+                  const active = b === base;
+                  return (
+                    <li key={b}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          switchBase(b);
+                          setSourceOpen(false);
+                        }}
+                        role="option"
+                        aria-selected={active}
+                        className={`flex w-full items-center justify-between px-4 py-2.5 text-sm transition ${
+                          active
+                            ? "bg-white/10 text-white"
+                            : "text-zinc-300 hover:bg-white/5 hover:text-white"
+                        }`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <span className="grid h-6 w-6 place-items-center rounded-full bg-white/5 text-[11px] font-semibold text-zinc-400">
+                            {i + 1}
+                          </span>
+                          {hostOf(b)}
+                        </span>
+                        {active && (
+                          <Icon name="checkFilled" className="text-accent" />
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
+}
+
+const hostOf = (url: string) => url.replace(/^https?:\/\//, "");
+
+interface IconProps {
+  name: "check" | "checkFilled" | "refresh" | "globe" | "chevron";
+  className?: string;
+}
+
+function Icon({ name, className = "" }: IconProps) {
+  const common = {
+    width: 16,
+    height: 16,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "aria-hidden": true,
+    className,
+  };
+  switch (name) {
+    case "check":
+      return (
+        <svg {...common}>
+          <path d="m5 12 5 5L20 7" />
+        </svg>
+      );
+    case "checkFilled":
+      return (
+        <svg {...common} fill="currentColor" stroke="none">
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.7 7.3a1 1 0 0 0-1.4-1.4l-5 5-2.3-2.3a1 1 0 1 0-1.4 1.4l3 3a1 1 0 0 0 1.4 0l5.7-5.7Z"
+          />
+        </svg>
+      );
+    case "refresh":
+      return (
+        <svg {...common}>
+          <path d="M21 12a9 9 0 1 1-3-6.7" />
+          <path d="M21 4v5h-5" />
+        </svg>
+      );
+    case "globe":
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3 12h18" />
+          <path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z" />
+        </svg>
+      );
+    case "chevron":
+      return (
+        <svg {...common}>
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      );
+  }
 }
