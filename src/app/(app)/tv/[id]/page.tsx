@@ -205,13 +205,8 @@ export default async function TvPage({
         </div>
 
         {season?.episodes?.length ? (
-          <div>
-            {season.overview ? (
-              <p className="mt-4 max-w-3xl text-base leading-relaxed text-foreground/75">
-                {season.overview}
-              </p>
-            ) : null}
-            <ul className="mt-6 space-y-3">
+          <div className="mt-6">
+            <ul className="space-y-3">
               {season.episodes.map((ep) => (
                 <li key={ep.id}>
                   <Link
