@@ -33,15 +33,18 @@ export function EpisodeRow({
   if (!episodes.length) return null;
 
   return (
-    <section className="mt-8">
-      <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-lg font-semibold text-foreground/90">
-          Episodios · Temporada {season}
+    <section className="mt-10">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <h2 className="text-2xl font-black text-foreground sm:text-3xl">
+          Más episodios
+          <span className="ml-3 text-base font-semibold text-foreground/55">
+            Temporada {season}
+          </span>
         </h2>
         {seriesName && (
           <Link
             href={`/tv/${tvId}?season=${season}`}
-            className="text-sm text-zinc-300 transition hover:text-white"
+            className="inline-flex min-h-10 items-center rounded-full border border-white/10 bg-white/10 px-4 text-sm font-bold text-foreground/80 backdrop-blur-xl transition hover:border-white/20 hover:bg-white/15 hover:text-foreground"
           >
             Ver todos →
           </Link>
@@ -59,7 +62,7 @@ export function EpisodeRow({
               ref={isActive ? activeRef : null}
               href={href}
               prefetch={false}
-              className={`group relative flex w-72 shrink-0 flex-col overflow-hidden rounded-lg border bg-surface/70 shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70 ${
+              className={`group relative flex w-80 shrink-0 flex-col overflow-hidden rounded-xl border bg-surface/70 shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70 ${
                 isActive
                   ? "border-accent ring-2 ring-accent shadow-accent/25"
                   : "border-white/10 hover:border-white/20 hover:bg-surface"
@@ -72,8 +75,8 @@ export function EpisodeRow({
                     src={still}
                     alt=""
                     fill
-                    sizes="16rem"
-                    className="object-cover"
+                    sizes="20rem"
+                    className="object-cover transition duration-300 group-hover:scale-105"
                   />
                 ) : null}
                 {isActive && (

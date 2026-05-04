@@ -191,8 +191,8 @@ export function Player({
   };
 
   return (
-    <div className="space-y-3">
-      <div className="relative w-full overflow-hidden rounded-md bg-black shadow-2xl aspect-video">
+    <div className="space-y-4">
+      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black shadow-2xl shadow-black/60 ring-1 ring-white/10">
         <iframe
           key={`${base}-${reloadKey}`}
           src={src}
@@ -204,17 +204,17 @@ export function Player({
         />
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={markWatched}
             disabled={marked}
-            className={`group inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+            className={`group inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2 text-sm font-bold shadow-lg shadow-black/20 transition ${
               marked
-                ? "bg-white/10 text-white/80"
-                : "bg-white text-black hover:bg-zinc-200 active:scale-[0.98]"
-            } disabled:cursor-default`}
+                ? "border border-white/10 bg-white/10 text-white/80"
+                : "bg-white text-black hover:-translate-y-0.5 hover:bg-zinc-200 active:scale-[0.98]"
+            } disabled:cursor-default disabled:translate-y-0`}
           >
             <Icon name={marked ? "checkFilled" : "check"} />
             {marked ? "Visto" : "Marcar como visto"}
@@ -223,7 +223,7 @@ export function Player({
           <button
             type="button"
             onClick={tryNextMirror}
-            className="group inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white/20 active:scale-[0.98]"
+            className="group inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-black/20 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/20 active:scale-[0.98]"
             title="Si la reproducción no carga, prueba otro espejo"
           >
             <Icon name="refresh" className="transition group-hover:rotate-180" />
@@ -237,7 +237,7 @@ export function Player({
             onClick={() => setSourceOpen((v) => !v)}
             aria-haspopup="listbox"
             aria-expanded={sourceOpen}
-            className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white/20"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-black/20 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/20"
           >
             <Icon name="globe" />
             <span className="text-zinc-300">Fuente</span>
