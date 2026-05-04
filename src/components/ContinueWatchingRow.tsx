@@ -7,7 +7,11 @@ import {
 } from "@/lib/tmdb";
 import { Row } from "@/components/Row";
 
-export async function ContinueWatchingRow() {
+export async function ContinueWatchingRow({
+  watchlistKeys,
+}: {
+  watchlistKeys?: Set<string>;
+}) {
   const session = await auth();
   if (!session?.user?.id) return null;
 
@@ -36,5 +40,11 @@ export async function ContinueWatchingRow() {
     )
   ).filter((x): x is TmdbCard => x != null);
 
-  return <Row title="Continuar viendo" items={items} />;
+  return (
+    <Row
+      title="Continuar viendo"
+      items={items}
+      watchlistKeys={watchlistKeys}
+    />
+  );
 }

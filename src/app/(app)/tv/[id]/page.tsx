@@ -13,6 +13,7 @@ import {
   tmdbTitle,
   tmdbYear,
 } from "@/lib/tmdb";
+import { getWatchlistKeys } from "@/lib/user-data";
 
 export const revalidate = 3600;
 
@@ -79,6 +80,9 @@ export default async function TvPage({
     : false;
   const season = await getSeason(tmdbId, seasonNumber).catch(() => null);
   const recs = await getTvRecommendations(tmdbId).catch(() => null);
+  const watchlistKeys = recs?.results?.length
+    ? await getWatchlistKeys()
+    : undefined;
 
   const backdrop = tmdbImg(details.backdrop_path, "original");
   const title = tmdbTitle(details);
@@ -201,6 +205,7 @@ export default async function TvPage({
             title="Recomendadas"
             items={recs.results.slice(0, 20)}
             mediaType="tv"
+            watchlistKeys={watchlistKeys}
           />
         ) : null}
       </div>

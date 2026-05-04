@@ -1,5 +1,6 @@
 import { Card } from "@/components/Card";
 import { searchMulti, type TmdbCard } from "@/lib/tmdb";
+import { getWatchlistKeys, watchlistKey } from "@/lib/user-data";
 
 export const metadata = { title: "Buscar" };
 export const dynamic = "force-dynamic";
@@ -23,8 +24,10 @@ export default async function SearchPage({
       .map((r) => ({ item: r, mediaType: r.media_type }));
   }
 
+  const watchlistKeys = results.length ? await getWatchlistKeys() : new Set<string>();
+
   return (
-    <div className="mx-auto max-w-screen-2xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-screen-2xl px-4 py-10 sm:px-8">
       <h1 className="text-2xl font-bold">
         {q ? `Resultados para "${q}"` : "Buscar"}
       </h1>
@@ -39,12 +42,13 @@ export default async function SearchPage({
       ) : null}
 
       {results.length > 0 ? (
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-10 px-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {results.map(({ item, mediaType }) => (
             <Card
               key={`${mediaType}-${item.id}`}
               item={item}
               mediaType={mediaType}
+              inWatchlist={watchlistKeys.has(watchlistKey(mediaType, item.id))}
             />
           ))}
         </div>

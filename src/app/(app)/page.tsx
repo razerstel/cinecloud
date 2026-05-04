@@ -10,6 +10,7 @@ import {
   getTrending,
   getTvByGenre,
 } from "@/lib/tmdb";
+import { getWatchlistKeys } from "@/lib/user-data";
 
 export const revalidate = 3600;
 export const metadata = { title: "Inicio" };
@@ -26,6 +27,7 @@ export default async function HomePage() {
     drama,
     animacion,
     tvDrama,
+    watchlistKeys,
   ] = await Promise.all([
     getTrending("week"),
     getPopularMovies(),
@@ -37,6 +39,7 @@ export default async function HomePage() {
     getMoviesByGenre(18),
     getMoviesByGenre(16),
     getTvByGenre(18),
+    getWatchlistKeys(),
   ]);
 
   const hero =
@@ -47,18 +50,68 @@ export default async function HomePage() {
       {hero && <Hero item={hero} />}
       <div className="mx-auto max-w-screen-2xl">
         <Suspense>
-          <ContinueWatchingRow />
+          <ContinueWatchingRow watchlistKeys={watchlistKeys} />
         </Suspense>
-        <Row title="Tendencias esta semana" items={trending.results} priorityFirst />
-        <Row title="Películas populares" items={popularMovies.results} mediaType="movie" />
-        <Row title="Mejor valoradas" items={topRatedMovies.results} mediaType="movie" />
-        <Row title={`Series populares`} items={popularTv.results} mediaType="tv" />
-        <Row title={`Acción`} items={accion.results} mediaType="movie" />
-        <Row title={`Comedia`} items={comedia.results} mediaType="movie" />
-        <Row title={`Ciencia ficción`} items={sciFi.results} mediaType="movie" />
-        <Row title={`Drama`} items={drama.results} mediaType="movie" />
-        <Row title={`Animación`} items={animacion.results} mediaType="movie" />
-        <Row title={`Series · Drama`} items={tvDrama.results} mediaType="tv" />
+        <Row
+          title="Tendencias esta semana"
+          items={trending.results}
+          priorityFirst
+          watchlistKeys={watchlistKeys}
+        />
+        <Row
+          title="Películas populares"
+          items={popularMovies.results}
+          mediaType="movie"
+          watchlistKeys={watchlistKeys}
+        />
+        <Row
+          title="Mejor valoradas"
+          items={topRatedMovies.results}
+          mediaType="movie"
+          watchlistKeys={watchlistKeys}
+        />
+        <Row
+          title="Series populares"
+          items={popularTv.results}
+          mediaType="tv"
+          watchlistKeys={watchlistKeys}
+        />
+        <Row
+          title="Acción"
+          items={accion.results}
+          mediaType="movie"
+          watchlistKeys={watchlistKeys}
+        />
+        <Row
+          title="Comedia"
+          items={comedia.results}
+          mediaType="movie"
+          watchlistKeys={watchlistKeys}
+        />
+        <Row
+          title="Ciencia ficción"
+          items={sciFi.results}
+          mediaType="movie"
+          watchlistKeys={watchlistKeys}
+        />
+        <Row
+          title="Drama"
+          items={drama.results}
+          mediaType="movie"
+          watchlistKeys={watchlistKeys}
+        />
+        <Row
+          title="Animación"
+          items={animacion.results}
+          mediaType="movie"
+          watchlistKeys={watchlistKeys}
+        />
+        <Row
+          title="Series · Drama"
+          items={tvDrama.results}
+          mediaType="tv"
+          watchlistKeys={watchlistKeys}
+        />
       </div>
     </>
   );

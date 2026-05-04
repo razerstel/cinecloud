@@ -16,7 +16,7 @@ export function NavLinks() {
   const pathname = usePathname() ?? "/";
 
   return (
-    <nav className="flex items-center gap-1 text-sm font-medium">
+    <nav className="flex items-center gap-1 text-base font-medium">
       {items.map((it) => {
         const active = it.match(pathname);
         return (
@@ -25,8 +25,8 @@ export function NavLinks() {
             href={it.href}
             className={
               active
-                ? "rounded-full bg-zinc-700/90 px-4 py-1.5 text-white shadow-sm"
-                : "rounded-full px-4 py-1.5 text-zinc-300 transition hover:text-white"
+                ? "rounded-full bg-zinc-700/95 px-5 py-2.5 text-white shadow-md ring-1 ring-white/10"
+                : "rounded-full px-5 py-2.5 text-zinc-300 transition hover:bg-white/10 hover:text-white"
             }
           >
             {it.label}

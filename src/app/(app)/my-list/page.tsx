@@ -36,20 +36,21 @@ export default async function MyListPage() {
   const cards: Entry[] = fetched.filter((x): x is Entry => x != null);
 
   return (
-    <div className="mx-auto max-w-screen-2xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-screen-2xl px-4 py-10 sm:px-8">
       <h1 className="text-2xl font-bold">Mi lista</h1>
       {cards.length === 0 ? (
         <p className="mt-2 text-sm text-muted">
-          Aún no has guardado nada. Pulsa <span className="font-medium">+ Mi lista</span>{" "}
-          en la ficha de cualquier título.
+          Aún no has guardado nada. Pulsa el botón{" "}
+          <span className="font-semibold">+</span> sobre cualquier tarjeta.
         </p>
       ) : (
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        <div className="mt-6 grid grid-cols-1 gap-x-4 gap-y-10 px-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {cards.map(({ item, mediaType }) => (
             <Card
               key={`${mediaType}-${item.id}`}
               item={item}
               mediaType={mediaType}
+              inWatchlist
             />
           ))}
         </div>
