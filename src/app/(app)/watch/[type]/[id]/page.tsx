@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Player } from "@/components/Player";
+import { EpisodeRow } from "@/components/EpisodeRow";
 import {
   getMovieDetails,
+  getSeason,
   getTvDetails,
   type MediaType,
   tmdbTitle,
@@ -61,6 +63,11 @@ export default async function WatchPage({
         ? details.episode_run_time[0] * 60
         : null;
 
+  const seasonData =
+    mediaType === "tv"
+      ? await getSeason(tmdbId, season ?? 1).catch(() => null)
+      : null;
+
   return (
     <div className="mx-auto max-w-screen-xl px-3 pt-4 sm:px-6">
       <div className="mb-3 flex items-baseline justify-between gap-3">
@@ -87,6 +94,16 @@ export default async function WatchPage({
         episode={episode}
         durationSec={durationSec}
       />
+
+      {mediaType === "tv" && seasonData?.episodes?.length ? (
+        <EpisodeRow
+          tvId={tmdbId}
+          season={seasonData.season_number}
+          episodes={seasonData.episodes}
+          currentEpisode={episode}
+          seriesName={title}
+        />
+      ) : null}
     </div>
   );
 }
